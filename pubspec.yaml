@@ -1,0 +1,38 @@
+name: smart_ascenseur
+description: "A new Flutter project."
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  web_socket_channel: ^2.0.0
+  google_fonts: ^5.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.11.0
+  flutter_lints: ^4.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.jpg"
+
+flutter:
+  uses-material-design: true # Enable Material icons
+  assets:
+    - assets/logo.jpg
+    - assets/etage_actuel.jpg
+    - assets/poids.png
+    - assets/poids_max.png
+    - assets/etat.png
+    - assets/direction_icon.png
+    - assets/temps_attent.png
+    - assets/ventilation.jpg
+    - assets/temperature.png
+    - assets/elevator.png

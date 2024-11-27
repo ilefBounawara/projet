@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ElevatorListPage extends StatelessWidget {
-  const ElevatorListPage({super.key});
+  final WebSocketChannel channel;
+
+  const ElevatorListPage({super.key, required this.channel});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +15,7 @@ class ElevatorListPage extends StatelessWidget {
         backgroundColor: const Color(0xFFB1C4E8),
         elevation: 0,
         title: const Text(
-          'Liste d\'ascenseur',
+          'Liste des Ascenseurs',
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -20,55 +24,54 @@ class ElevatorListPage extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 16.0,
-          children: [
-            ElevatorCard(
-              title: 'Ascenseur 1',
-              status: 'Occupé',
-              currentFloor: 7,
-              directionIcon: Icons.arrow_upward,
-              isActive: true,
-              onTap: () {
-                Navigator.pushNamed(context, '/elevatorInfo');
-              },
-            ),
-            ElevatorCard(
-              title: 'Ascenseur 2',
-              status: 'Libre',
-              currentFloor: 3,
-              directionIcon: Icons.arrow_downward,
-              isActive: false,
-              onTap: () {
-                Navigator.pushNamed(context, '/elevatorInfo');
-              },
-            ),
-            ElevatorCard(
-              title: 'Ascenseur 3',
-              status: 'En maintenance',
-              currentFloor: 5,
-              directionIcon: Icons.arrow_downward,
-              isActive: true,
-              onTap: () {
-                Navigator.pushNamed(context, '/elevatorInfo');
-              },
-            ),
-            ElevatorCard(
-              title: 'Ascenseur 4',
-              status: 'Libre',
-              currentFloor: 1,
-              directionIcon: Icons.arrow_upward,
-              isActive: true,
-              onTap: () {
-                Navigator.pushNamed(context, '/elevatorInfo');
-              },
-            ),
-          ],
-        ),
+      body: StreamBuilder(
+        stream: channel.stream, // Flux WebSocket
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text("Erreur de connexion WebSocket"));
+          } else if (snapshot.hasData) {
+            // Affichage des données reçues dans la console pour le débogage
+            print("Données reçues : ${snapshot.data}");
+
+            try {
+              // Décoder les données JSON reçues
+              final List elevators = json.decode(snapshot.data.toString());
+
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.count(
+                  crossAxisCount: 2, // Nombre de colonnes fixe
+                  mainAxisSpacing: 16.0,
+                  crossAxisSpacing: 16.0,
+                  children: List.generate(elevators.length, (index) {
+                    final elevator = elevators[index];
+                    return ElevatorCard(
+                      id: 'Ascensseur A1',//text
+                      title: elevator['Id'] ?? 'Inconnu',
+                      status: elevator['State'] ?? 'Inconnu',
+                      currentFloor: int.tryParse(elevator['Floor'] ?? '0') ?? 0,
+                      directionIcon: elevator['Direction'] == "0"
+                          ? Icons.arrow_downward
+                          : Icons.arrow_upward,
+                      isActive: elevator['State'] == 'active',
+                      onTap: () {
+                        Navigator.pushNamed(context, '/elevatorInfo');
+                      },
+                    );
+                  }),
+                ),
+              );
+            } catch (e) {
+              print("Erreur lors de l'analyse des données JSON: $e");
+              return const Center(
+                  child: Text("Erreur lors de l'analyse des données"));
+            }
+          } else {
+            return const Center(child: Text("Aucune donnée reçue"));
+          }
+        },
       ),
     );
   }
@@ -76,6 +79,7 @@ class ElevatorListPage extends StatelessWidget {
 
 class ElevatorCard extends StatefulWidget {
   final String title;
+  final String id;
   final String status;
   final int currentFloor;
   final IconData directionIcon;
@@ -84,6 +88,7 @@ class ElevatorCard extends StatefulWidget {
 
   const ElevatorCard({
     super.key,
+    required this.id,
     required this.title,
     required this.status,
     required this.currentFloor,
@@ -104,7 +109,6 @@ class _ElevatorCardState extends State<ElevatorCard> {
       _isTapped = true;
     });
 
-    // Delay to show the color change briefly before navigating
     Future.delayed(const Duration(milliseconds: 200), () {
       setState(() {
         _isTapped = false;
@@ -121,7 +125,7 @@ class _ElevatorCardState extends State<ElevatorCard> {
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: _isTapped
-              ? Colors.blue[200] // Color when tapped
+              ? Colors.blue[200] // Couleur lors de l'appui
               : (widget.isActive ? Colors.white : Colors.grey[400]),
           borderRadius: BorderRadius.circular(20),
         ),
@@ -129,7 +133,7 @@ class _ElevatorCardState extends State<ElevatorCard> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/elevator.png', // Use your elevator icon here
+              'assets/elevator.png',
               height: 50,
               width: 50,
             ),

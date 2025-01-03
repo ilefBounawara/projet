@@ -14,8 +14,8 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Naviguer après 3 secondes
     Timer(const Duration(seconds: 3), () {
-      //Navigator.pushReplacementNamed(context, '/etage');
-      Navigator.pushReplacementNamed(context, '/elevator_list');
+      Navigator.pushReplacementNamed(context, '/etage');
+      //Navigator.pushReplacementNamed(context, '/elevator_list');
     });
   }
 

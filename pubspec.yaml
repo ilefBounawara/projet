@@ -11,6 +11,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   web_socket_channel: ^2.0.0
   google_fonts: ^5.0.0
+  carousel_slider: ^5.0.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -36,3 +38,14 @@ flutter:
     - assets/ventilation.jpg
     - assets/temperature.png
     - assets/elevator.png
+    - assets/haut.gif
+    - assets/bas.gif
+    - assets/credit_card.png
+    - assets/pay.png
+    - assets/qr-code.png
+    - assets/crown.png
+    - assets/chip.jpg
+    - assets/visa_logo.png
+    - assets/mastercard_logo.jpg
+    - assets/amex_logo.png
+    - assets/crownuser.png
